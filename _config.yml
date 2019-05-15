@@ -1,0 +1,24 @@
+title:             Dev Report
+email:             soo@ecdsa.io
+description:       ""
+author:            Soo
+baseurl:           ""
+url:               "https://ecdsa.io"
+
+# Social Profiles
+github_username:   sooids
+
+# Build settings
+markdown:          kramdown
+paginate:          5
+paginate_path:     "/posts/page:num/"
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+
+mermaid:
+  src: 'https://unpkg.com/mermaid@7.1.0/dist/mermaid.min.js'
