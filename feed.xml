@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="https://ecdsa.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ecdsa.io/" rel="alternate" type="text/html" /><updated>2019-05-16T07:04:10+09:00</updated><id>https://ecdsa.io/feed.xml</id><title type="html">Dev Report</title><subtitle></subtitle><author><name>Soo</name></author><entry><title type="html">파일 정렬/합병</title><link href="https://ecdsa.io/file%20structure/2019/05/16/FS_Merge_Sort.html" rel="alternate" type="text/html" title="파일 정렬/합병" /><published>2019-05-16T00:00:00+09:00</published><updated>2019-05-16T00:00:00+09:00</updated><id>https://ecdsa.io/file%20structure/2019/05/16/FS_Merge_Sort</id><content type="html" xml:base="https://ecdsa.io/file%20structure/2019/05/16/FS_Merge_Sort.html">&lt;h1 id=&quot;정렬합병&quot;&gt;정렬/합병&lt;/h1&gt;
+
+&lt;p&gt;&lt;strong&gt;내부 정렬&lt;/strong&gt; - 메인 메모리 내에 모두 저장시켜 정렬을 수행 할 수 있을때 사용된다&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;외부 정렬&lt;/strong&gt; - 메인 메모리의 용량을 초과하여 보조 저장 장치에 저장 된 대형 파일을 정렬할 때 사용된다.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;레코드를 판독하고 기록하는데 걸리는 시간이 중요&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;파일 정렬 기법(File Sorting Techniques)을 정렬/합병(Sort/Merge)라고 한다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;&lt;strong&gt;정렬/합병&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;대형 파일 정렬&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;파일 하나를 여러개의 서브 파일(Subfile)로 나누어 내부 정렬(Internel Sort)를 적용&lt;/p&gt;
+
+  &lt;p&gt;런(Run): 정렬된 서브 파일&lt;/p&gt;
+
+  &lt;p&gt;런을 합병(Merge)하여 하나의 정렬된 파일 생성&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;script src=&quot;https://unpkg.com/mermaid@7.1.0/dist/mermaid.min.js&quot;&gt;&lt;/script&gt;
+&lt;div class=&quot;mermaid&quot;&gt;
+graph LR
+A[RUN1] --&amp;gt; C[정렬/합병]
+B[RUN2] --&amp;gt; C[정렬/합병]
+C --&amp;gt; D[정렬된 파일]
+&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;h1 id=&quot;정렬합병-단계&quot;&gt;정렬/합병 단계&lt;/h1&gt;
+
+&lt;h2 id=&quot;정렬-단계sort-phase&quot;&gt;정렬 단계(Sort Phase)&lt;/h2&gt;
+
+&lt;p&gt;정렬할 파일의 레코드들을 지정된 길이의 서브파일로 분할해서 정렬하여 런(Run)을 만들어 입력파일로 분배하는 단계&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;파일을 어떻게 분할하는가?  (런을 어떻게 생성하는가?)&lt;/p&gt;
+
+  &lt;p&gt;내부 정렬, 대체 선택, 자연 선택 등이 있다.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;내부 정렬&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;런 생성 방법&lt;/p&gt;
+
+    &lt;p&gt;1) n레코드씩 분할&lt;/p&gt;
+
+    &lt;p&gt;2) 각 레코드들에 내부 정렬 적용(Internal Sorting)&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;마지막 것을 제외하고 모두 길이가 같다.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;대체 선택&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;런 생성 방법&lt;/p&gt;
+
+    &lt;p&gt;1) 버퍼에 m개 레코드를 판독, 첫 번째 런을 생성한다.&lt;/p&gt;
+
+    &lt;p&gt;2) 버퍼에서 키 값이 가장 작은 레코드를 선택하여 출력한다.&lt;/p&gt;
+
+    &lt;p&gt;3) 입력 파일에서 다음 레코드를 판독해서 출력된 레코드와 대체한다.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;만약 이 레코드의 키 값이 출력된 레코드의 키 값보다 작으면 이 레코드에 동결 표시(frozen)&lt;/li&gt;
+      &lt;li&gt;동결된 레코드는 &lt;code class=&quot;highlighter-rouge&quot;&gt;단계 2&lt;/code&gt;에서 제외&lt;/li&gt;
+      &lt;li&gt;아직 동결되지 않은 레코드가 있으면 &lt;code class=&quot;highlighter-rouge&quot;&gt;단계 2&lt;/code&gt;로 돌아간다.&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;p&gt;1) 동결된 레코드를 모두 해제하고 &lt;code class=&quot;highlighter-rouge&quot;&gt;단계 2&lt;/code&gt;로 돌아가 새로운 런을 생성한다.&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;입력 파일에 부분적으로 정렬되어 있는 레코드들의 성질을 이용&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;내부 정렬을 이용한 런보다 길이가 더 길다.&lt;/p&gt;
+
+      &lt;p&gt;평균 예상 길이: 2m&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;내림차순일 때 가장 많은 런이 생성된다.&lt;/p&gt;
+
+      &lt;p&gt;오름차순일 때 가장 적은 런이 생성된다.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;자연 선택&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;p&gt;런 생성 방법&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;동결된 레코드들을 버퍼에 유지하지 않음&lt;/li&gt;
+      &lt;li&gt;보조 저장 장치에 예비 장소(reservoir)를 설정하여 저장&lt;/li&gt;
+      &lt;li&gt;하나의 런은 예비 장소가 꽉 차거나, 입력 파일이 공백이 될 때 까지 계속 생성&lt;/li&gt;
+    &lt;/ul&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;버퍼에 동결된 레코드가 생성되는 런에 장해가 되는 것을 해결하기 위한 방법&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;자연선택은 대체선택보다 런을 길게 생성할 수 있다.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;런을-생성할-때-고려해야-할-사항&quot;&gt;런을 생성할 때 고려해야 할 사항&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;내부 정렬&lt;/p&gt;
+
+  &lt;blockquote&gt;
+    &lt;p&gt;마지막 런을 제외하고 모든 런의 길이가 같다.&lt;/p&gt;
+
+    &lt;p&gt;런의 길이를 예측할 수 있으므로 합병 알고리즘을 간단하게 만들 수 있다.&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;대체 선택&lt;/p&gt;
+
+  &lt;blockquote&gt;
+    &lt;p&gt;내부 정렬보다 평균적으로 긴 런을 생성한다.&lt;/p&gt;
+
+    &lt;p&gt;런의 길이가 일정하지 않아 정렬/합병 알고리즘이 복잡해 질 수 있다.&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;자연 선택&lt;/p&gt;
+
+  &lt;blockquote&gt;
+    &lt;p&gt;내부 정렬이나 대체선택보다 더 긴 런을 생성할 수 있다.&lt;/p&gt;
+
+    &lt;p&gt;예비 장소로의 입출력을 해야하는 문제가 있다.&lt;/p&gt;
+
+    &lt;p&gt;긴 런의 정렬/합병단계에서의 효율성이 예비 장소 전송 비용보다 이익이 될 수 있다.&lt;/p&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;</content><author><name>Soo</name></author><summary type="html">정렬/합병</summary></entry></feed>

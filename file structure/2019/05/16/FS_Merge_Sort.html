@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+  
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>
+    파일 정렬/합병 - Dev Report
+    
+  </title>
+
+  <meta name="description" content="정렬/합병">
+
+  <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="/assets/vendor/fontawesome-free/css/all.min.css">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="https://ecdsa.io/file%20structure/2019/05/16/FS_Merge_Sort.html">
+  <link rel="alternate" type="application/rss+xml" title="Dev Report" href="/feed.xml">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-140214222-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-140214222-1');
+  </script>
+
+</head>
+
+
+  <body>
+
+    <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="/">Dev Report</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      Menu
+      <i class="fa fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="/posts">Posts</a>
+        </li>
+            
+            
+              
+                
+                  <li class="nav-item"><a class="nav-link category-link "
+                  href="/category/File%20Structure.html"> - File Structure</a></li>
+                
+              
+            
+              
+                
+              
+            
+              
+                
+              
+            
+              
+                
+              
+            
+              
+            
+              
+            
+              
+            
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+    <!-- Page Header -->
+
+<header class="masthead" style="background-image: url('/img/posts/06.jpg')">
+  
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="post-heading">
+            <h1>파일 정렬/합병</h1>
+            
+            <h2 class="subheading">정렬/합병의 개요</h2>
+            
+            <span class="meta">Posted by
+              <a href="#">Soo</a>
+              on May 16, 2019 &middot; <span class="reading-time" title="Estimated read time">
+  
+   3 mins  read </span>
+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+
+        <h1 id="정렬합병">정렬/합병</h1>
+
+<p><strong>내부 정렬</strong> - 메인 메모리 내에 모두 저장시켜 정렬을 수행 할 수 있을때 사용된다</p>
+
+<p><strong>외부 정렬</strong> - 메인 메모리의 용량을 초과하여 보조 저장 장치에 저장 된 대형 파일을 정렬할 때 사용된다.</p>
+
+<ul>
+  <li>레코드를 판독하고 기록하는데 걸리는 시간이 중요</li>
+</ul>
+
+<blockquote>
+  <p>파일 정렬 기법(File Sorting Techniques)을 정렬/합병(Sort/Merge)라고 한다.</p>
+</blockquote>
+
+<hr />
+
+<p><strong>정렬/합병</strong></p>
+
+<ul>
+  <li>대형 파일 정렬</li>
+</ul>
+
+<blockquote>
+  <p>파일 하나를 여러개의 서브 파일(Subfile)로 나누어 내부 정렬(Internel Sort)를 적용</p>
+
+  <p>런(Run): 정렬된 서브 파일</p>
+
+  <p>런을 합병(Merge)하여 하나의 정렬된 파일 생성</p>
+</blockquote>
+
+<script src="https://unpkg.com/mermaid@7.1.0/dist/mermaid.min.js"></script>
+<div class="mermaid">
+graph LR
+A[RUN1] --&gt; C[정렬/합병]
+B[RUN2] --&gt; C[정렬/합병]
+C --&gt; D[정렬된 파일]
+</div>
+
+<hr />
+
+<h1 id="정렬합병-단계">정렬/합병 단계</h1>
+
+<h2 id="정렬-단계sort-phase">정렬 단계(Sort Phase)</h2>
+
+<p>정렬할 파일의 레코드들을 지정된 길이의 서브파일로 분할해서 정렬하여 런(Run)을 만들어 입력파일로 분배하는 단계</p>
+
+<blockquote>
+  <p>파일을 어떻게 분할하는가?  (런을 어떻게 생성하는가?)</p>
+
+  <p>내부 정렬, 대체 선택, 자연 선택 등이 있다.</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p><strong>내부 정렬</strong></p>
+
+    <p>런 생성 방법</p>
+
+    <p>1) n레코드씩 분할</p>
+
+    <p>2) 각 레코드들에 내부 정렬 적용(Internal Sorting)</p>
+
+    <blockquote>
+      <p>마지막 것을 제외하고 모두 길이가 같다.</p>
+    </blockquote>
+  </li>
+  <li>
+    <p><strong>대체 선택</strong></p>
+
+    <p>런 생성 방법</p>
+
+    <p>1) 버퍼에 m개 레코드를 판독, 첫 번째 런을 생성한다.</p>
+
+    <p>2) 버퍼에서 키 값이 가장 작은 레코드를 선택하여 출력한다.</p>
+
+    <p>3) 입력 파일에서 다음 레코드를 판독해서 출력된 레코드와 대체한다.</p>
+
+    <ul>
+      <li>만약 이 레코드의 키 값이 출력된 레코드의 키 값보다 작으면 이 레코드에 동결 표시(frozen)</li>
+      <li>동결된 레코드는 <code class="highlighter-rouge">단계 2</code>에서 제외</li>
+      <li>아직 동결되지 않은 레코드가 있으면 <code class="highlighter-rouge">단계 2</code>로 돌아간다.</li>
+    </ul>
+
+    <p>1) 동결된 레코드를 모두 해제하고 <code class="highlighter-rouge">단계 2</code>로 돌아가 새로운 런을 생성한다.</p>
+
+    <blockquote>
+      <p>입력 파일에 부분적으로 정렬되어 있는 레코드들의 성질을 이용</p>
+    </blockquote>
+
+    <blockquote>
+      <p>내부 정렬을 이용한 런보다 길이가 더 길다.</p>
+
+      <p>평균 예상 길이: 2m</p>
+    </blockquote>
+
+    <blockquote>
+      <p>내림차순일 때 가장 많은 런이 생성된다.</p>
+
+      <p>오름차순일 때 가장 적은 런이 생성된다.</p>
+    </blockquote>
+  </li>
+  <li>
+    <p><strong>자연 선택</strong></p>
+
+    <p>런 생성 방법</p>
+
+    <ul>
+      <li>동결된 레코드들을 버퍼에 유지하지 않음</li>
+      <li>보조 저장 장치에 예비 장소(reservoir)를 설정하여 저장</li>
+      <li>하나의 런은 예비 장소가 꽉 차거나, 입력 파일이 공백이 될 때 까지 계속 생성</li>
+    </ul>
+
+    <blockquote>
+      <p>버퍼에 동결된 레코드가 생성되는 런에 장해가 되는 것을 해결하기 위한 방법</p>
+    </blockquote>
+
+    <blockquote>
+      <p>자연선택은 대체선택보다 런을 길게 생성할 수 있다.</p>
+    </blockquote>
+  </li>
+</ol>
+
+<h3 id="런을-생성할-때-고려해야-할-사항">런을 생성할 때 고려해야 할 사항</h3>
+
+<blockquote>
+  <p>내부 정렬</p>
+
+  <blockquote>
+    <p>마지막 런을 제외하고 모든 런의 길이가 같다.</p>
+
+    <p>런의 길이를 예측할 수 있으므로 합병 알고리즘을 간단하게 만들 수 있다.</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>대체 선택</p>
+
+  <blockquote>
+    <p>내부 정렬보다 평균적으로 긴 런을 생성한다.</p>
+
+    <p>런의 길이가 일정하지 않아 정렬/합병 알고리즘이 복잡해 질 수 있다.</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>자연 선택</p>
+
+  <blockquote>
+    <p>내부 정렬이나 대체선택보다 더 긴 런을 생성할 수 있다.</p>
+
+    <p>예비 장소로의 입출력을 해야하는 문제가 있다.</p>
+
+    <p>긴 런의 정렬/합병단계에서의 효율성이 예비 장소 전송 비용보다 이익이 될 수 있다.</p>
+  </blockquote>
+</blockquote>
+
+
+        <hr>
+
+        <div class="clearfix">
+
+          
+          
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Footer -->
+
+<hr>
+
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <ul class="list-inline text-center">
+          
+          
+          
+          
+          <li class="list-inline-item">
+            <a href="https://github.com/sooids">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x"></i>
+                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="copyright text-muted">Copyright &copy; Soo 2019</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <script src="/assets/vendor/jquery/jquery.min.js"></script>
+<script src="/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/startbootstrap-clean-blog/js/clean-blog.min.js"></script>
+
+<script src="/assets/scripts.js"></script>
+
+
+
+
+  </body>
+
+</html>
